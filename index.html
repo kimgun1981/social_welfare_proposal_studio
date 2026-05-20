@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>사회복지 사업계획서 Studio · 프롬프트 빌더</title>
+<title>사회복지 사업계획서 Studio · 프롬프트 빌더 V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
@@ -612,6 +612,77 @@
   @media (min-width:900px){
     .chips{gap:8px}
   }
+
+  /* ═══════════ PROGRESS BAR ═══════════ */
+  .progress-wrap{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:14px;padding:0 2px;
+  }
+  .progress-bar-outer{
+    flex:1;height:8px;
+    background:var(--bg);
+    border:2px solid var(--line);
+    border-radius:8px;overflow:hidden;
+  }
+  .progress-bar-inner{
+    height:100%;background:var(--primary);
+    border-radius:6px;
+    transition:width .35s ease;width:0%;
+  }
+  .progress-text{font-size:9.5pt;color:var(--ink-mute);font-weight:700;white-space:nowrap}
+
+  /* ═══════════ SECTION DONE DOT ═══════════ */
+  .sec-done-dot{
+    width:12px;height:12px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--ink-mute);
+    transition:all .2s ease;flex-shrink:0;margin-left:auto;
+  }
+  .sec-done-dot.filled{
+    background:var(--primary);border-color:var(--primary);
+    box-shadow:0 0 0 3px var(--primary-soft);
+  }
+
+  /* ═══════════ SECTION HIGHLIGHT (PRESET) ═══════════ */
+  @keyframes sec-glow{
+    0%{box-shadow:0 0 0 4px var(--gold),var(--shadow-sm)}
+    70%{box-shadow:0 0 0 4px var(--gold),var(--shadow-sm)}
+    100%{box-shadow:var(--shadow-sm)}
+  }
+  .sec-highlight{animation:sec-glow 1.8s ease forwards}
+
+  /* ═══════════ CHECKLIST ═══════════ */
+  .check-item{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:8px 12px;border-radius:10px;margin-bottom:6px;font-size:11pt;
+  }
+  .check-item.done{background:var(--sage-soft)}
+  .check-item.todo{background:var(--bg);border:1.5px solid var(--line)}
+  .check-icon{flex-shrink:0;font-size:13pt;line-height:1.3}
+  .check-group-title{font-size:10.5pt;font-weight:700;color:var(--ink-soft);margin:14px 0 6px}
+
+  /* ═══════════ SCALE TABLE ═══════════ */
+  .scale-section{margin-bottom:22px}
+  .scale-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:10.5pt}
+  .scale-table th{background:var(--ink);color:var(--paper);padding:8px 12px;text-align:left;font-weight:700}
+  .scale-table td{padding:8px 12px;border-bottom:1px solid var(--bg);vertical-align:top;line-height:1.5}
+  .scale-table tr:nth-child(even) td{background:var(--bg)}
+  .scale-name{font-weight:700;color:var(--primary-deep)}
+
+  /* ═══════════ SAVE SLOTS (10개) ═══════════ */
+  .save-slots{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;max-height:60vh;overflow-y:auto}
+  .slot{padding:10px 12px}
+  .slot-num{width:28px;height:28px;font-size:11pt}
+
+  /* ═══════════ MOBILE IMPROVEMENTS ═══════════ */
+  @media (max-width:640px){
+    .action-inner{flex-direction:column;align-items:stretch;gap:8px}
+    .action-btns{display:flex;gap:6px;flex-wrap:wrap}
+    .action-btns .btn{flex:1;justify-content:center}
+    .selection-count{text-align:center}
+    .progress-text{font-size:9pt}
+    .chips{gap:6px}
+    .chip{font-size:9.5pt;padding:6px 10px;min-height:36px}
+  }
 </style>
 </head>
 <body>
@@ -621,10 +692,11 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <h1>🌿 사회복지 사업계획서 Studio<span class="tag">V1</span></h1>
+        <h1>🌿 사회복지 사업계획서 Studio<span class="tag">V2</span></h1>
         <p>막막한 백지 앞에서 칩 클릭으로 시작해요 ✨</p>
       </div>
       <div class="topbar-actions">
+        <button class="btn" onclick="shareURL()">🔗 공유</button>
         <button class="btn" onclick="openSaveModal()">💾 저장</button>
         <button class="btn rose" onclick="confirmReset()">🔄 초기화</button>
       </div>
@@ -636,7 +708,16 @@
     <button class="tab active" onclick="switchTab('builder', this)">🛠 빌더</button>
     <button class="tab" onclick="switchTab('presets', this)">⭐ 추천</button>
     <button class="tab" onclick="switchTab('guide', this)">📖 가이드</button>
+    <button class="tab" onclick="switchTab('scales', this)">📏 척도</button>
   </nav>
+
+  <!-- 진행률 바 -->
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+    <span class="progress-text" id="progressText">0/9 섹션 완성</span>
+  </div>
 
   <!-- ═══════════ NOTICE ═══════════ -->
   <div class="notice">
@@ -659,7 +740,7 @@
         <div class="sec-num">★</div>
         <div class="sec-title">바로 쓰는 추천 프롬프트</div>
       </div>
-      <p class="sec-sub">실제 공모사업·프로그램 시나리오 12종 · 카드 클릭 → 빌더 자동 입력 → 수정 후 생성</p>
+      <p class="sec-sub">실제 공모사업·프로그램 시나리오 18종 · 카드 클릭 → 빌더 자동 입력 → 수정 후 생성</p>
       <div class="preset-grid" id="presetGrid"></div>
     </div>
   </div>
@@ -741,8 +822,100 @@
         <li><strong>저작권.</strong> 생성된 사업계획서는 기관 자산. 외부 유출·상업적 활용 금지.</li>
       </ul>
 
+      <h2>📅 8. 사업 기간 & 일정</h2>
+      <p>사업 연도·기간·시작 시기·준비 기간을 선택하면 AI가 <strong>월별 일정표·단계별 추진 계획</strong>을 자동으로 작성해요. 연중사업이면 준비기(1~2개월)→실행기(9~10개월)→마무리·평가기(1~2개월) 구조가 기본입니다.</p>
+
       <h2>🌿 더 나은 도구를 위해</h2>
       <p>현장에서 쓰면서 발견한 빠진 옵션·어색한 표현·추가했으면 하는 기능이 있으면 알려주세요. 사회복지 현장은 매년 변하니까 함께 업데이트해 가요.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB: 척도 가이드 ═══════════ -->
+  <div id="tab-scales" class="tab-content">
+    <div class="guide-content">
+      <h2>📏 대상별 표준화 척도 가이드</h2>
+      <p>근거기반(EBP) 실천을 위해 공인된 척도를 활용하면 공모 심사 신뢰도가 높아져요. 척도명은 AI에게 그대로 입력하면 됩니다.</p>
+
+      <div class="scale-section">
+        <h3>🧒 아동 (7~12세)</h3>
+        <table class="scale-table">
+          <tr><th>척도명</th><th>측정 영역</th><th>비고</th></tr>
+          <tr><td><span class="scale-name">K-CBCL</span></td><td>행동·정서 문제 (부모보고)</td><td>만 4~18세, 표준화</td></tr>
+          <tr><td><span class="scale-name">CDI</span></td><td>아동 우울 (자기보고)</td><td>만 7~17세, 27문항</td></tr>
+          <tr><td><span class="scale-name">SSRS</span></td><td>사회기술 (교사·부모보고)</td><td>또래관계·자기통제</td></tr>
+          <tr><td><span class="scale-name">RCADS</span></td><td>불안·우울 복합</td><td>자기보고, 25문항</td></tr>
+          <tr><td><span class="scale-name">가족기능척도(FES)</span></td><td>가족 응집력·표현성</td><td>가족 환경 측정</td></tr>
+        </table>
+      </div>
+
+      <div class="scale-section">
+        <h3>🧑 청소년 (13~19세)</h3>
+        <table class="scale-table">
+          <tr><th>척도명</th><th>측정 영역</th><th>비고</th></tr>
+          <tr><td><span class="scale-name">YSR</span></td><td>행동·정서 문제 (자기보고)</td><td>만 11~18세</td></tr>
+          <tr><td><span class="scale-name">Rosenberg SES</span></td><td>자아존중감</td><td>10문항, 범용</td></tr>
+          <tr><td><span class="scale-name">BDI-II</span></td><td>우울증 자기보고</td><td>21문항, 표준화</td></tr>
+          <tr><td><span class="scale-name">BAI</span></td><td>불안 자기보고</td><td>21문항</td></tr>
+          <tr><td><span class="scale-name">또래관계 척도</span></td><td>또래수용·거부</td><td>학교 적응 연계</td></tr>
+        </table>
+      </div>
+
+      <div class="scale-section">
+        <h3>👴 어르신 (65세+)</h3>
+        <table class="scale-table">
+          <tr><th>척도명</th><th>측정 영역</th><th>비고</th></tr>
+          <tr><td><span class="scale-name">MMSE-K</span></td><td>인지기능 선별</td><td>30점 만점, 24점 이하 의심</td></tr>
+          <tr><td><span class="scale-name">CDR</span></td><td>치매 중증도 임상평가</td><td>0~3 단계</td></tr>
+          <tr><td><span class="scale-name">GDS-K</span></td><td>노인 우울 선별</td><td>15문항 단축형 있음</td></tr>
+          <tr><td><span class="scale-name">K-ADL</span></td><td>일상생활수행능력</td><td>기본 7개 항목</td></tr>
+          <tr><td><span class="scale-name">K-IADL</span></td><td>도구적 일상생활수행능력</td><td>전화·요리·교통 등</td></tr>
+          <tr><td><span class="scale-name">UCLA 고독감척도</span></td><td>사회적 고독감</td><td>20문항</td></tr>
+        </table>
+      </div>
+
+      <div class="scale-section">
+        <h3>♿ 장애인 · 발달장애</h3>
+        <table class="scale-table">
+          <tr><th>척도명</th><th>측정 영역</th><th>비고</th></tr>
+          <tr><td><span class="scale-name">K-SIB-R</span></td><td>적응행동 (지원 필요도)</td><td>발달장애 핵심 척도</td></tr>
+          <tr><td><span class="scale-name">K-Vineland-II</span></td><td>사회성숙도·적응행동</td><td>4개 영역</td></tr>
+          <tr><td><span class="scale-name">자기결정척도(ARC)</span></td><td>자기결정 능력</td><td>발달장애 자립 평가</td></tr>
+          <tr><td><span class="scale-name">삶의질 척도(QOL-Q)</span></td><td>삶의 만족도</td><td>8개 핵심 영역</td></tr>
+          <tr><td><span class="scale-name">ILS(자립생활기술)</span></td><td>자립 역량</td><td>보호종료·자립 사업</td></tr>
+        </table>
+      </div>
+
+      <div class="scale-section">
+        <h3>🌧 정신건강 · 중독</h3>
+        <table class="scale-table">
+          <tr><th>척도명</th><th>측정 영역</th><th>비고</th></tr>
+          <tr><td><span class="scale-name">PHQ-9</span></td><td>우울증 선별 (자기보고)</td><td>9문항, 범용</td></tr>
+          <tr><td><span class="scale-name">GAD-7</span></td><td>범불안장애 선별</td><td>7문항</td></tr>
+          <tr><td><span class="scale-name">CES-D</span></td><td>역학연구용 우울척도</td><td>20문항, 지역사회 연구</td></tr>
+          <tr><td><span class="scale-name">AUDIT-K</span></td><td>알코올 사용장애 선별</td><td>10문항, 한국 표준화</td></tr>
+          <tr><td><span class="scale-name">CPGI</span></td><td>도박 문제 선별</td><td>9문항</td></tr>
+          <tr><td><span class="scale-name">SBQ-R</span></td><td>자살행동 질문지</td><td>자살예방 사업 필수</td></tr>
+          <tr><td><span class="scale-name">BHS</span></td><td>절망감 척도</td><td>자살위험 예측</td></tr>
+        </table>
+      </div>
+
+      <div class="scale-section">
+        <h3>👨‍👩‍👧 가족 · 부모</h3>
+        <table class="scale-table">
+          <tr><th>척도명</th><th>측정 영역</th><th>비고</th></tr>
+          <tr><td><span class="scale-name">FACES-III</span></td><td>가족 응집력·적응력</td><td>가족관계 회복 사업</td></tr>
+          <tr><td><span class="scale-name">PSI(양육스트레스)</span></td><td>부모 양육 스트레스</td><td>한부모·위기가정</td></tr>
+          <tr><td><span class="scale-name">가족기능척도</span></td><td>가족 기능 전반</td><td>사례관리 초기 사정</td></tr>
+        </table>
+      </div>
+
+      <h2>💡 척도 활용 팁</h2>
+      <ul>
+        <li><strong>사전·사후 측정이 기본.</strong> 동일 척도로 개입 전·후를 비교해야 성과지표가 됩니다.</li>
+        <li><strong>표준화 척도 + 자체설문 조합.</strong> 신뢰도(표준화 척도) + 사업 특수성(자체 설문) 이중 구성이 이상적.</li>
+        <li><strong>GAS(목표달성척도)</strong>는 개인별 맞춤 목표 측정에 탁월해요. 사례관리·발달장애 사업에 특히 유용.</li>
+        <li><strong>척도 저작권 확인.</strong> 일부 척도는 연구·비상업적 사용만 허용. 출판사 허가 필요 여부 확인.</li>
+      </ul>
     </div>
   </div>
 
@@ -755,7 +928,10 @@
       선택 항목 <strong id="selCount">0</strong>개
       <span style="color:var(--ink-mute);font-size:9.5pt"> · Ctrl+Enter로도 생성 가능</span>
     </div>
-    <button class="btn primary lg" onclick="generatePrompt()">✨ 프롬프트 생성</button>
+    <div class="action-btns">
+      <button class="btn" onclick="openChecklist()">✅ 체크리스트</button>
+      <button class="btn primary lg" onclick="generatePrompt()">✨ 프롬프트 생성</button>
+    </div>
   </div>
 </div>
 
@@ -767,8 +943,22 @@
     <div class="prompt-out" id="promptOut"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closePromptModal()">닫기</button>
+      <button class="btn" onclick="downloadPrompt()">⬇️ 다운로드</button>
       <button class="btn gold" onclick="copyPrompt()">📋 복사</button>
       <button class="btn primary" onclick="copyPrompt(true)">📋 복사 후 닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: CHECKLIST ═══════════ -->
+<div class="modal-bg" id="checklistModal" onclick="if(event.target===this)closeChecklist()">
+  <div class="modal">
+    <h2>✅ 제출 전 체크리스트</h2>
+    <p class="modal-sub">프롬프트 생성 전 확인하세요. 빠진 항목이 있으면 빌더로 돌아가 채워주세요.</p>
+    <div id="checklistContent"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeChecklist()">닫기</button>
+      <button class="btn primary" onclick="closeChecklist();generatePrompt()">✨ 프롬프트 생성</button>
     </div>
   </div>
 </div>
@@ -796,8 +986,19 @@ const SECTIONS = [
   {
     num: '0', id: 'basic',
     title: '사업 기본 정보',
-    sub: '누구를 위한 사업인가요',
+    sub: '누구를 위한, 어떤 기관의 사업인가요',
     groups: [
+      { id:'orgType', label:'기관 유형', type:'single', chips:[
+        {e:'🏛', l:'종합사회복지관'},
+        {e:'♿', l:'장애인복지관'},
+        {e:'👴', l:'노인복지관(시설)'},
+        {e:'🧒', l:'아동복지시설'},
+        {e:'🧑', l:'청소년지원센터'},
+        {e:'🧠', l:'정신건강복지센터'},
+        {e:'💼', l:'지역자활센터'},
+        {e:'⭐', l:'드림스타트'},
+        {e:'🌐', l:'사회복지 관련 NGO'},
+      ]},
       { id:'target', label:'대상자', type:'multi', chips:[
         {e:'🧒', l:'아동(7~12세)'},
         {e:'🧑', l:'청소년(13~19세)'},
@@ -1094,11 +1295,41 @@ const SECTIONS = [
       hint: '지역 특수성·기존 사업의 한계·올해 꼭 넣고 싶은 요소·예상 어려움 등을 자유롭게 적어주세요. 자세할수록 맞춤형 결과가 나와요.',
       placeholder: '예시) 우리 지역은 1인 어르신 비율이 25%로 광역평균(15%)보다 높음. 작년 인지건강 사업은 중도 이탈률이 높았는데, 이번엔 또래 동반(짝꿍 매칭) 방식을 적용해 출석률을 높이려 함. 협력기관으로 보건소 치매안심센터·노인대학과 연계 예정. 회기 중반 위기 발생 시 정신건강복지센터로 의뢰 체계 마련 필요...'
     }
+  },
+  {
+    num: '8', id: 'schedule',
+    title: '사업 기간 & 일정',
+    sub: '언제, 얼마나 진행하는 사업인가요',
+    groups: [
+      { id:'projYear', label:'사업 연도', type:'single', chips:[
+        {e:'2️⃣', l:'2025년'},
+        {e:'2️⃣', l:'2026년'},
+        {e:'2️⃣', l:'2027년'},
+      ]},
+      { id:'projDuration', label:'사업 기간', type:'single', chips:[
+        {e:'3️⃣', l:'3개월'},
+        {e:'6️⃣', l:'6개월'},
+        {e:'9️⃣', l:'9개월'},
+        {e:'📅', l:'12개월(연중)'},
+        {e:'🔄', l:'18개월'},
+      ]},
+      { id:'projStart', label:'사업 시작 시기', type:'single', chips:[
+        {e:'🌸', l:'1분기(1~3월)'},
+        {e:'☀️', l:'2분기(4~6월)'},
+        {e:'🍂', l:'3분기(7~9월)'},
+        {e:'❄️', l:'4분기(10~12월)'},
+      ]},
+      { id:'projPrepTime', label:'준비 기간', type:'single', chips:[
+        {e:'⚡', l:'1개월'},
+        {e:'📋', l:'2개월'},
+        {e:'🗓', l:'3개월'},
+      ]},
+    ]
   }
 ];
 
 /* ═══════════════════════════════════════════
-   추천 프리셋 12종
+   추천 프리셋 18종
    ═══════════════════════════════════════════ */
 const PRESETS = [
   {
@@ -1342,6 +1573,143 @@ const PRESETS = [
       docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성','클라이언트 중심']
     },
     freetext:'학습 결손과 정서적 결핍이 동반된 아동 대상 통합 지원. 학습(국어·수학)+정서(미술치료·놀이)+사회성(또래활동) 3축. 학교 담임·드림스타트와 연계해 위기 신호 조기발견.'
+  },
+  {
+    id:'p13', emoji:'🏠', color:'var(--ink)',
+    title:'노숙인 자활·주거 안정 지원',
+    desc:'거리노숙인·주거불안정인 통합 지원 · 복지부 공모',
+    tags:['노숙인','주거','자활'],
+    fill:{
+      orgType:['사회복지 관련 NGO'],
+      target:['위기가구','1인가구'], scale:['10명 이내'], stage:['신규'],
+      purpose:['자립지원','위기개입','역량강화'], approach:['강점관점','임파워먼트','사례관리'],
+      value:['자기결정존중','클라이언트중심','통합적접근'],
+      format:['사례관리','직업훈련','공동체활동'], mode:['방문형'], frequency:['주 2회'], sessions:['20회 이상'],
+      staff:['사회복지사','임상심리사'],
+      data:['통계청 자료','정부 백서·매뉴얼','언론보도·실태보고'], region:['대도시 도심'],
+      priorAnalysis:['유사사업 분석','기존사업 한계'],
+      goalForm:['SMART 목표','논리모델(IPO)'], evalTime:['사전평가','중간평가','사후평가','추적조사(3·6개월)'],
+      tool:['표준화 척도','심층면접','관찰 기록','목표달성척도(GAS)'], indicator:['산출지표(output)','성과지표(outcome)','과정지표(process)'],
+      partner:['주민센터·구청','병원·보건소','법률기관'], family:['미적용'], community:['자원봉사단','후원자·후원금'],
+      funder:['복지부 공모'], budgetSize:['3천~5천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','관리운영비'],
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['시급성','연계성','지속가능성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
+    },
+    freetext:'고시원·여인숙 등 비적정주거 거주 주거취약계층·거리노숙인 대상. 주거안정→자활훈련→지역사회 복귀 3단계 모델. 법률지원(임대료 체납·퇴거 위기) 연계. 노숙인지원기관 네트워크와 통합 사례관리.'
+  },
+  {
+    id:'p14', emoji:'💪', color:'var(--primary-soft)',
+    title:'알코올·도박 중독 회복 지원',
+    desc:'중독 회복 당사자 자조모임 · 복지재단',
+    tags:['중독회복','자조모임','동료지원'],
+    fill:{
+      orgType:['정신건강복지센터'],
+      target:['중·장년','우울·정신건강'], scale:['10~30명'], stage:['신규'],
+      purpose:['치료·재활','역량강화','관계회복'], approach:['임파워먼트','자조모임','인지행동','해결중심'],
+      value:['자기결정존중','클라이언트중심','문화적민감성'],
+      format:['집단상담','자조모임','교육'], mode:['대면(기관)'], frequency:['주 1회'], sessions:['16회'],
+      staff:['사회복지사','임상심리사'],
+      data:['통계청 자료','학술 연구보고서','정부 백서·매뉴얼'], region:['중소도시'],
+      priorAnalysis:['유사사업 분석','차별성·혁신성'],
+      goalForm:['SMART 목표'], evalTime:['사전평가','중간평가','사후평가','추적조사(3·6개월)'],
+      tool:['표준화 척도','심층면접','관찰 기록'], indicator:['성과지표(outcome)','과정지표(process)'],
+      partner:['병원·보건소','주민센터·구청','법률기관'], family:['선택 참여'], community:['자원봉사단','주민조직'],
+      funder:['복지재단'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)'],
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','클라이언트 중심'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
+    },
+    freetext:'알코올·도박 중독 회복 당사자 대상. 동료지원가(회복 선배) 참여 자조모임 모델. 가족 상담 월 1회 병행. 단도박회·AA 연계. AUDIT-K·CPGI 척도 활용. 단주/금도박 유지기간 지표 포함.'
+  },
+  {
+    id:'p15', emoji:'🌱', color:'var(--sage-soft)',
+    title:'자살 예방 & 게이트키퍼 양성',
+    desc:'고위험군 주변인 대상 예방 교육 · 복지부 공모',
+    tags:['자살예방','게이트키퍼','정신건강'],
+    fill:{
+      orgType:['정신건강복지센터'],
+      target:['중·장년','어르신(65+)','우울·정신건강'], scale:['30~50명'], stage:['신규'],
+      purpose:['예방','조기개입','위기개입'], approach:['강점관점','회복탄력성','또래지지'],
+      value:['클라이언트중심','자기결정존중','문화적민감성'],
+      format:['교육','집단상담','공동체활동'], mode:['혼합(블렌디드)'], frequency:['격주'], sessions:['8회'],
+      staff:['사회복지사','임상심리사','외부강사'],
+      data:['통계청 자료','학술 연구보고서','정부 백서·매뉴얼'], region:['중소도시'],
+      priorAnalysis:['유사사업 분석','국내외 사례'],
+      goalForm:['SMART 목표'], evalTime:['사전평가','사후평가','추적조사(3·6개월)'],
+      tool:['표준화 척도','관찰 기록','만족도 조사'], indicator:['산출지표(output)','성과지표(outcome)'],
+      partner:['병원·보건소','주민센터·구청','경찰·소방'], family:['선택 참여'], community:['주민조직','자원봉사단'],
+      funder:['복지부 공모'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','홍보비'],
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['시급성','연계성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
+    },
+    freetext:'자살위험 고위험군 주변인 대상 게이트키퍼(자살예방 파수꾼) 양성. 지역사회 자살예방 네트워크 구축. PHQ-9·SBQ-R 척도 활용. 자살충동 위기개입 24시간 연계 체계 포함. 미디어 가이드라인 준수.'
+  },
+  {
+    id:'p16', emoji:'🌏', color:'var(--gold-soft)',
+    title:'북한이탈주민 정착 적응 지원',
+    desc:'탈북 청소년·성인 사회통합 · 복지재단',
+    tags:['탈북민','정착','사회통합'],
+    fill:{
+      orgType:['사회복지 관련 NGO'],
+      target:['청소년(13~19세)','중·장년','다문화가정'], scale:['10~30명'], stage:['신규'],
+      purpose:['사회통합','역량강화','자립지원'], approach:['강점관점','임파워먼트','사례관리'],
+      value:['문화적민감성','자기결정존중','클라이언트중심'],
+      format:['교육','멘토링','사례관리','공동체활동'], mode:['혼합(블렌디드)'], frequency:['주 1회'], sessions:['연중상시'],
+      staff:['사회복지사','대학생 멘토','자원봉사자'],
+      data:['통계청 자료','정부 백서·매뉴얼','학술 연구보고서'], region:['대도시 도심'],
+      priorAnalysis:['유사사업 분석','국내외 사례','차별성·혁신성'],
+      goalForm:['SMART 목표','논리모델(IPO)'], evalTime:['사전평가','중간평가','사후평가','추적조사(3·6개월)'],
+      tool:['표준화 척도','심층면접','자체개발 설문'], indicator:['성과지표(outcome)','과정지표(process)'],
+      partner:['학교','주민센터·구청','NGO·시민단체'], family:['선택 참여'], community:['자원봉사단','주민조직'],
+      funder:['복지재단'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)'],
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['연계성','지속가능성','클라이언트 중심'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
+    },
+    freetext:'입국 5년 이내 북한이탈주민 대상. 언어·문화 적응 + 취업 역량 + 지역사회 관계망 3축 통합 지원. 하나원 연계 입국 초기 연속성 확보. 남북 문화 차이 민감성 훈련 받은 전담 사회복지사 배치. 동료지원가(먼저 온 탈북민) 활용.'
+  },
+  {
+    id:'p17', emoji:'🦋', color:'var(--accent-soft)',
+    title:'보호종료아동 자립 역량 강화',
+    desc:'시설·위탁가정 퇴소 청년 자립 패키지 · 사랑의열매',
+    tags:['보호종료','자립','청년'],
+    fill:{
+      orgType:['아동복지시설'],
+      target:['청소년(13~19세)','1인가구'], scale:['10~30명'], stage:['신규'],
+      purpose:['자립지원','역량강화','관계회복'], approach:['강점관점','임파워먼트','사례관리'],
+      value:['자기결정존중','클라이언트중심','통합적접근'],
+      format:['교육','멘토링','사례관리','공동체활동'], mode:['혼합(블렌디드)'], frequency:['주 1회'], sessions:['연중상시'],
+      staff:['사회복지사','임상심리사','대학생 멘토'],
+      data:['통계청 자료','학술 연구보고서','정부 백서·매뉴얼'], region:['대도시 도심'],
+      priorAnalysis:['유사사업 분석','기존사업 한계','차별성·혁신성'],
+      goalForm:['SMART 목표','논리모델(IPO)'], evalTime:['사전평가','중간평가','사후평가','추적조사(3·6개월)'],
+      tool:['표준화 척도','심층면접','목표달성척도(GAS)','포트폴리오'], indicator:['성과지표(outcome)','영향지표(impact)'],
+      partner:['주민센터·구청','기업','대학'], family:['미적용'], community:['자원봉사단','후원자·후원금'],
+      funder:['사랑의열매'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','관리운영비'],
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성','성과지향'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
+    },
+    freetext:'만 18세 시설·위탁가정 퇴소 후 3년 이내 보호종료청년 대상. 주거안정·경제적 자립·사회적 관계망 3축 패키지. 자립생활관 연계 주거 보장. 멘토 기업 연계 인턴십 포함. ILS(자립생활기술척도) 활용.'
+  },
+  {
+    id:'p18', emoji:'🤝', color:'var(--lilac-soft)',
+    title:'독거 어르신 재가복지 통합 돌봄',
+    desc:'저소득 독거 어르신 재가서비스 · 지자체',
+    tags:['재가서비스','독거노인','통합돌봄'],
+    fill:{
+      orgType:['노인복지관(시설)'],
+      target:['어르신(65+)','1인가구','저소득가정'], scale:['30~50명'], stage:['3년차 이상'],
+      purpose:['예방','치료·재활','사회통합'], approach:['사례관리','강점관점','생태체계'],
+      value:['클라이언트중심','지역사회기반','통합적접근'],
+      format:['사례관리','건강관리','급식·생활지원'], mode:['방문형'], frequency:['주 2회'], sessions:['연중상시'],
+      staff:['사회복지사','간호사·의사','자원봉사자'],
+      data:['지역사회보장계획','통계청 자료','기관 자체조사'], region:['원도심·낙후'],
+      goalForm:['SMART 목표'], evalTime:['중간평가','사후평가'],
+      tool:['표준화 척도','관찰 기록','자체개발 설문'], indicator:['산출지표(output)','성과지표(outcome)','과정지표(process)'],
+      partner:['병원·보건소','주민센터·구청','종교기관'], family:['정보 제공'], community:['자원봉사단','주민조직','지역 상점·기업'],
+      funder:['지자체·구청'], budgetSize:['1천~3천만원'], budgetItem:['인건비','활동비(교통·식비)','관리운영비'],
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['1개월']
+    },
+    freetext:'의료·복지 복합 욕구를 가진 독거 어르신 대상 통합 재가 케어. 사회복지사+방문건강관리사 팀 접근. 지역사회 통합돌봄(커뮤니티케어) 연계. MMSE-K·K-ADL·K-IADL 주기적 사정. 고독사 예방 안전 확인 서비스 포함.'
   }
 ];
 
@@ -1401,6 +1769,7 @@ function renderSections(){
         <div class="sec-num">${sec.num}</div>
         <div class="sec-title">${sec.title}</div>
         ${badges}
+        <div class="sec-done-dot" id="done-${sec.id}" title="미선택"></div>
       </div>
       <div class="sec-sub">${sec.sub}</div>
       ${groupsHtml}
@@ -1449,6 +1818,31 @@ function updateCount(){
   Object.values(state.selections).forEach(v => total += v.length);
   if (state.freetext.trim()) total += 1;
   document.getElementById('selCount').textContent = total;
+  updateSectionStatus();
+}
+
+function updateSectionStatus(){
+  const done = SECTIONS.filter(sec =>
+    sec.groups.some(g => (state.selections[g.id] || []).length > 0)
+  ).length;
+  const total = SECTIONS.length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  const bar = document.getElementById('progressBar');
+  const txt = document.getElementById('progressText');
+  const wrap = document.getElementById('progressWrap');
+  if (bar) bar.style.width = pct + '%';
+  if (txt) txt.textContent = done + '/' + total + ' 섹션 완성 · ' + pct + '%';
+  if (wrap) wrap.style.display = 'flex';
+
+  SECTIONS.forEach(sec => {
+    const hasSel = sec.groups.some(g => (state.selections[g.id] || []).length > 0);
+    const dot = document.getElementById('done-' + sec.id);
+    if (dot) {
+      dot.classList.toggle('filled', hasSel);
+      dot.title = hasSel ? '✅ 선택 완료' : '미선택';
+    }
+  });
 }
 
 /* ═══════════════════════════════════════════
@@ -1506,8 +1900,20 @@ function applyPreset(id){
   document.querySelectorAll('.tab')[0].classList.add('active');
   document.getElementById('tab-builder').classList.add('active');
   window.scrollTo({top:0, behavior:'smooth'});
-  showToast(`✨ "${p.title}" 프리셋 적용됨`);
+  showToast('✨ "' + p.title + '" 프리셋 적용됨');
   updateCount();
+  // 채워진 섹션 하이라이트
+  setTimeout(() => {
+    SECTIONS.forEach(sec => {
+      if (sec.groups.some(g => (p.fill[g.id] || []).length > 0)) {
+        const el = document.getElementById('sec-' + sec.id);
+        if (el) {
+          el.classList.add('sec-highlight');
+          setTimeout(() => el.classList.remove('sec-highlight'), 1900);
+        }
+      }
+    });
+  }, 150);
 }
 
 /* ═══════════════════════════════════════════
@@ -1526,6 +1932,8 @@ function generatePrompt(){
     return;
   }
 
+  const funderSpecific = getFunderInstructions(get('funder'));
+
   const prompt = `당신은 한국 사회복지관에서 10년 이상 경력을 쌓은 사회복지 프로그램 기획 전문가입니다.
 2023 개정 한국사회복지사 윤리강령과 강점관점·임파워먼트 접근을 기반으로,
 다음 조건에 맞는 사업계획서를 한국 사회복지 현장 용어로 작성해 주세요.
@@ -1535,6 +1943,7 @@ function generatePrompt(){
 ═════════════════════════════════════════════
 
 ## 0. 사업 기본 정보
+- 기관 유형: ${get('orgType')}
 - 대상자: ${get('target')}
 - 대상 규모: ${get('scale')}
 - 사업 단계: ${get('stage')}
@@ -1577,8 +1986,14 @@ function generatePrompt(){
 - 어조: ${get('tone')}
 - 강조점: ${get('emphasis')}
 
-${state.freetext.trim() ? `## 📝 추가 입력 (작성자 메모)\n${state.freetext.trim()}` : ''}
+## 8. 사업 기간 & 일정
+- 사업 연도: ${get('projYear')}
+- 사업 기간: ${get('projDuration')}
+- 사업 시작 시기: ${get('projStart')}
+- 준비 기간: ${get('projPrepTime')}
 
+${state.freetext.trim() ? '## 📝 추가 입력 (작성자 메모)\n' + state.freetext.trim() : ''}
+${funderSpecific}
 ═════════════════════════════════════════════
 ✅ 작성 요구사항
 ═════════════════════════════════════════════
@@ -1614,6 +2029,7 @@ ${state.freetext.trim() ? `## 📝 추가 입력 (작성자 메모)\n${state.fre
 ### 4. 사업 추진 계획
 - 추진 전략 (3~4가지 핵심 전략)
 - **회기별 세부 활동표** (회차·주제·활동내용·진행방법·도구)
+- **월별 일정표** (준비기→실행기→마무리·평가기 단계별 주요 활동)
 - 단계별 진행 흐름 (도입→전개→정리·마무리)
 
 ### 5. 평가 계획
@@ -1685,19 +2101,147 @@ function closePromptModal(){
   document.getElementById('promptModal').classList.remove('show');
 }
 
+function downloadPrompt(){
+  const text = window._lastPrompt || '';
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '사업계획서_프롬프트_' + new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'') + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('⬇️ 프롬프트 다운로드 완료');
+}
+
+function getFunderInstructions(funder){
+  const map = {
+    '지자체·구청': '\n[지자체·구청 특화 지침]\n- 지역사회보장계획 연계성 명시\n- 주민 참여·의견 수렴 과정 포함\n- 인건비 비율 총예산의 30% 이하 권장\n- 행정 효율성·성과 관리 체계 강조',
+    '사랑의열매': '\n[사랑의열매(공동모금회) 특화 지침]\n- "도움받을 사람 중심" 서술 방식\n- 인건비 50% 이하, 사업비 비중 높게\n- 기관 자부담 비율 명시 (통상 10~30%)\n- 연차별 성과지표 수치화 필수',
+    '기업 CSR': '\n[기업 CSR 특화 지침]\n- 기업 핵심 가치·사업 분야와의 연계성 명시\n- ESG(환경·사회·지배구조) 연계 서술\n- 직원 봉사 참여 가능 여부 포함\n- 정량적 임팩트·언론 홍보 효과 제시',
+    '복지부 공모': '\n[복지부 공모 특화 지침]\n- 해당 연도 복지부 정책 방향 부합성 명시\n- 관련 법령·지침 근거 조항 인용\n- 공무원 인건비 단가표 기준 예산 산출\n- 사업 종료 후 자립화·지속화 방안 필수',
+    '여가부 공모': '\n[여가부 공모 특화 지침]\n- 여성가족부 소관 법령 근거 명시\n- 성평등 관점 반영 여부 기술\n- 청소년·가족 정책 방향 부합성 강조',
+    '복지재단': '\n[복지재단 특화 지침]\n- 사업의 혁신성·차별성·선도성 강조\n- 유사 사업 비교 분석 포함\n- 확산 가능성·모델화·매뉴얼화 계획\n- 학술 연구 근거 풍부하게 인용',
+    '매칭펀드': '\n[매칭펀드 특화 지침]\n- 자부담 확보 방안과 재원 근거 명시\n- 각 재원별 역할 분담 명확히 구분\n- 매칭 비율 및 산출 근거 제시',
+    '기관 자체예산': '\n[기관 자체예산 특화 지침]\n- 내부 보고용 형식으로 간결하게\n- 기존 사업과의 연계성 강조\n- 기관 미션·비전과의 부합성 명시'
+  };
+  return map[funder] || '';
+}
+
+function shareURL(){
+  try {
+    const data = JSON.stringify({s: state.selections, f: state.freetext});
+    const encoded = btoa(unescape(encodeURIComponent(data)));
+    const url = location.origin + location.pathname + '#share=' + encoded;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('🔗 공유 URL 복사 완료! 동료에게 붙여넣어 주세요');
+    }).catch(() => {
+      prompt('아래 URL을 복사하세요:', url);
+    });
+  } catch(e) {
+    showToast('⚠️ 공유 링크 생성 실패');
+  }
+}
+
+function loadFromHash(){
+  const hash = location.hash;
+  if (!hash || !hash.startsWith('#share=')) return;
+  try {
+    const encoded = hash.slice(7);
+    const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    if (data.s) {
+      state.selections = data.s;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      Object.entries(state.selections).forEach(([gid, labels]) => {
+        (labels || []).forEach(label => {
+          const chip = document.querySelector('.chip[data-group="' + gid + '"][data-label="' + label + '"]');
+          if (chip) chip.classList.add('selected');
+        });
+      });
+    }
+    if (data.f !== undefined) {
+      state.freetext = data.f;
+      const ta = document.getElementById('freetext');
+      if (ta) ta.value = state.freetext;
+    }
+    updateCount();
+    showToast('🔗 공유된 설정이 불러와졌어요');
+    history.replaceState(null, '', location.pathname);
+  } catch(e) {}
+}
+
+function openChecklist(){
+  renderChecklist();
+  document.getElementById('checklistModal').classList.add('show');
+}
+
+function closeChecklist(){
+  document.getElementById('checklistModal').classList.remove('show');
+}
+
+function renderChecklist(){
+  const sel = state.selections;
+  const funder = (sel.funder || [])[0] || '';
+  const common = [
+    {label:'기관 유형 선택', done:!!(sel.orgType?.length)},
+    {label:'대상자 선택', done:!!(sel.target?.length)},
+    {label:'사업 목적 선택', done:!!(sel.purpose?.length)},
+    {label:'프로그램 형식 선택', done:!!(sel.format?.length)},
+    {label:'욕구 분석 근거 자료 선택', done:!!(sel.data?.length)},
+    {label:'평가 도구 선택', done:!!(sel.tool?.length)},
+    {label:'공모처 선택', done:!!(sel.funder?.length)},
+    {label:'예산 규모 선택', done:!!(sel.budgetSize?.length)},
+    {label:'출력 형식 선택', done:!!(sel.docType?.length)},
+    {label:'사업 기간 선택', done:!!(sel.projDuration?.length)},
+  ];
+  const funderChecks = {
+    '사랑의열매':['사업비 비중 확인 (인건비 50% 이하)','기관 자부담 비율 명시 예정','연차별 성과지표 수치화 예정'],
+    '지자체·구청':['지역사회보장계획 연계성 확인','주민 참여 방안 포함 예정','인건비 비율 30% 이하 확인'],
+    '기업 CSR':['기업 가치 연계성 명시 예정','ESG 지표 포함 예정','임팩트 정량 지표 강조 예정'],
+    '복지부 공모':['관련 법령 근거 확인','정책 방향 부합성 검토 예정','자립화 방안 포함 예정'],
+    '복지재단':['혁신성·차별성 강조 예정','유사 사업 비교 분석 예정','확산 가능성 제시 예정'],
+  };
+  const fItems = funderChecks[funder] || [];
+  const warn = [
+    {label:'클라이언트 개인정보 미입력 확인', note:'이름·생년월일·연락처 없는지 확인'},
+    {label:'생성 후 통계 수치 원자료 대조 예정', note:'AI 인용 통계는 반드시 검증'},
+    {label:'기관장 결재·내부 승인 절차 예정', note:'제출 전 내부 결재 필수'},
+  ];
+  const el = document.getElementById('checklistContent');
+  el.innerHTML =
+    '<div class="check-group-title">기본 입력 항목</div>' +
+    common.map(i => '<div class="check-item ' + (i.done?'done':'todo') + '"><span class="check-icon">' + (i.done?'✅':'⬜') + '</span><span>' + i.label + '</span></div>').join('') +
+    (fItems.length ? '<div class="check-group-title">' + funder + ' 특화 항목</div>' + fItems.map(t => '<div class="check-item todo"><span class="check-icon">📌</span><span>' + t + '</span></div>').join('') : '') +
+    '<div class="check-group-title">제출 전 필수 확인</div>' +
+    warn.map(i => '<div class="check-item todo"><span class="check-icon">⚠️</span><div><div>' + i.label + '</div><div style="font-size:9.5pt;color:var(--ink-mute)">' + i.note + '</div></div></div>').join('');
+}
+
 /* ═══════════════════════════════════════════
    저장·불러오기 (localStorage 안전 처리)
    ═══════════════════════════════════════════ */
-const STORAGE_KEY = 'sw_proposal_studio_slots_v1';
+const STORAGE_KEY = 'sw_proposal_studio_slots_v2';
+const SLOT_COUNT = 10;
+
+function migrateOldSlots(){
+  const OLD = 'sw_proposal_studio_slots_v1';
+  if (localStorage.getItem(STORAGE_KEY)) return;
+  try {
+    const old = localStorage.getItem(OLD);
+    if (!old) return;
+    const arr = JSON.parse(old);
+    const n = new Array(SLOT_COUNT).fill(null);
+    arr.forEach((s, i) => { if (s && i < SLOT_COUNT) n[i] = s; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(n));
+  } catch(e) {}
+}
 
 function loadSlots(){
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [null, null, null];
+    if (!raw) return new Array(SLOT_COUNT).fill(null);
     const arr = JSON.parse(raw);
-    return [arr[0]||null, arr[1]||null, arr[2]||null];
+    return Array.from({length: SLOT_COUNT}, (_, i) => arr[i] || null);
   } catch(e) {
-    return [null, null, null];
+    return new Array(SLOT_COUNT).fill(null);
   }
 }
 
@@ -1780,7 +2324,7 @@ function doLoad(i){
 }
 
 function doDelete(i){
-  if (!confirm('이 슬롯을 삭제할까요?')) return;
+  if (!confirm('슬롯 ' + (i+1) + '을(를) 삭제할까요?')) return;
   const slots = loadSlots();
   slots[i] = null;
   saveSlots(slots);
@@ -1825,15 +2369,18 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape'){
     closePromptModal();
     closeSaveModal();
+    closeChecklist();
   }
 });
 
 /* ═══════════════════════════════════════════
    초기 실행
    ═══════════════════════════════════════════ */
+migrateOldSlots();
 renderSections();
 renderPresets();
 updateCount();
+loadFromHash();
 </script>
 </body>
 </html>
