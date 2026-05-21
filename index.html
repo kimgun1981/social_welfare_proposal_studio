@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#FBF6EB">
+<link rel="manifest" href="manifest.json">
 <title>사회복지 사업계획서 Studio · 프롬프트 빌더 V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -800,6 +801,103 @@
   .slot-num{width:28px;height:28px;font-size:11pt}
 
   /* 이미 위 반응형 블록에 통합됨 */
+
+  /* ═══════════ DARK MODE ═══════════ */
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#1A1714;--paper:#221F1B;
+      --ink:#F0EAE0;--ink-soft:#C4BAB0;--ink-mute:#8A8070;
+      --line:#9A9088;
+      --primary:#4DADA0;--primary-deep:#6ECBC0;--primary-soft:#1E4844;
+      --accent:#E09870;--accent-soft:#4A2D1E;
+      --gold:#E8B45A;--gold-soft:#3D2E10;
+      --rose:#E08888;--rose-soft:#4A2020;
+      --sage:#7EB58A;--sage-soft:#1E3C24;
+      --lilac:#B09DC8;--lilac-soft:#2E2040;
+      --shadow-sm:0 2px 0 rgba(0,0,0,0.4);
+      --shadow-md:0 4px 0 rgba(0,0,0,0.5);
+      --shadow-lg:0 6px 0 rgba(0,0,0,0.6);
+    }
+    body{background-image:
+      radial-gradient(circle at 8% 12%,rgba(77,173,160,0.06) 0%,transparent 35%),
+      radial-gradient(circle at 92% 28%,rgba(224,152,112,0.06) 0%,transparent 35%),
+      radial-gradient(circle at 50% 88%,rgba(126,181,138,0.06) 0%,transparent 40%);}
+    .chip.selected{background:var(--primary);color:#1A1714;border-color:var(--primary)}
+    .action-bar{border-top-color:var(--line)}
+    .modal-bg{background:rgba(0,0,0,0.7)}
+    input[type=text]{background:var(--bg);color:var(--ink);border-color:var(--line)}
+    .prompt-out{background:var(--bg);color:var(--ink)}
+    .scale-table th{background:var(--ink);color:var(--paper)}
+  }
+
+  /* ═══════════ ACCORDION ═══════════ */
+  .sec-head{cursor:pointer;user-select:none;-webkit-user-select:none}
+  .sec-body{overflow:hidden}
+  .sec-body.collapsed{display:none}
+  .sec-chevron{
+    font-size:11pt;color:var(--ink-mute);
+    transition:transform .25s ease;flex-shrink:0;
+    pointer-events:none;
+  }
+  .sec-chevron.open{transform:rotate(180deg)}
+
+  /* ═══════════ CONFIRM MODAL ═══════════ */
+  .confirm-overlay{
+    position:fixed;inset:0;
+    background:rgba(42,37,32,0.55);
+    display:none;align-items:center;justify-content:center;
+    z-index:1100;padding:16px;
+  }
+  .confirm-overlay.open{display:flex}
+  .confirm-box{
+    background:var(--paper);
+    border:3px solid var(--line);
+    border-radius:20px;
+    padding:28px 24px 20px;
+    max-width:320px;width:100%;
+    box-shadow:var(--shadow-lg);
+    text-align:center;
+  }
+  .confirm-box h3{font-size:14pt;margin-bottom:8px}
+  .confirm-box p{font-size:10.5pt;color:var(--ink-soft);margin-bottom:20px}
+  .confirm-btns{display:flex;gap:8px;justify-content:center}
+
+  /* ═══════════ HISTORY MODAL ═══════════ */
+  .history-item{
+    border:2px solid var(--line);border-radius:12px;
+    padding:12px;margin-bottom:10px;background:var(--bg);
+  }
+  .history-meta{
+    font-size:9.5pt;color:var(--ink-mute);
+    margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .history-preview{
+    font-size:10pt;color:var(--ink-soft);
+    white-space:pre-wrap;max-height:56px;overflow:hidden;
+    position:relative;line-height:1.4;
+  }
+  .history-preview::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;
+    height:22px;background:linear-gradient(transparent,var(--bg));
+  }
+
+  /* ═══════════ PRINT ═══════════ */
+  @media print{
+    .action-bar,.tabs,.topbar-actions,.notice,.modal-bg,
+    .toast,.sec-done-dot,.sec-required,.sec-key,
+    .sec-chevron,.progress-wrap{display:none !important}
+    body{background:#fff;color:#000;padding:0}
+    .app{padding:10mm;max-width:100%}
+    .section{break-inside:avoid;border:1px solid #ccc;margin-bottom:8mm}
+    .chip{border:1px solid #999}
+    .chip.selected{background:#e0e0e0;border-color:#333;color:#000}
+    .sec-body.collapsed{display:block !important}
+  }
+
+  /* ═══════════ KEYBOARD ACCESSIBILITY ═══════════ */
+  .chip:focus-visible,.btn:focus-visible,.tab:focus-visible{
+    outline:3px solid var(--primary);outline-offset:2px;
+  }
 </style>
 </head>
 <body>
@@ -1046,6 +1144,8 @@
       <span style="color:var(--ink-mute);font-size:9.5pt"> · Ctrl+Enter로도 생성 가능</span>
     </div>
     <div class="action-btns">
+      <button class="btn" onclick="suggestName()">💡 사업명</button>
+      <button class="btn" onclick="showHistory()">🕐 기록</button>
       <button class="btn" onclick="openChecklist()">✅ 체크리스트</button>
       <button class="btn primary lg" onclick="generatePrompt()">✨ 프롬프트 생성</button>
     </div>
@@ -1061,6 +1161,7 @@
     <div class="modal-actions">
       <button class="btn" onclick="closePromptModal()">닫기</button>
       <button class="btn" onclick="downloadPrompt()">⬇️ 다운로드</button>
+      <button class="btn" onclick="emailShare()">📧 이메일</button>
       <button class="btn gold" onclick="copyPrompt()">📋 복사</button>
       <button class="btn primary" onclick="copyPrompt(true)">📋 복사 후 닫기</button>
     </div>
@@ -1088,6 +1189,30 @@
     <div class="save-slots" id="saveSlots"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeSaveModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: PROMPT HISTORY ═══════════ -->
+<div class="modal-bg" id="historyModal" onclick="if(event.target===this)closeHistory()">
+  <div class="modal">
+    <h2>🕐 프롬프트 생성 기록</h2>
+    <p class="modal-sub">최근 3건 저장됩니다. 복사 후 다시 활용할 수 있습니다.</p>
+    <div id="historyContent"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeHistory()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CONFIRM OVERLAY ═══════════ -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">확인</h3>
+    <p id="confirmMsg"></p>
+    <div class="confirm-btns">
+      <button class="btn" onclick="closeConfirm()">취소</button>
+      <button class="btn rose" id="confirmOkBtn" onclick="doConfirm()">확인</button>
     </div>
   </div>
 </div>
@@ -1465,7 +1590,8 @@ const PRESETS = [
       tool:['표준화 척도','관찰 기록','만족도 조사'], indicator:['산출지표(output)','성과지표(outcome)'],
       partner:['학교','병원·보건소'], family:['선택 참여'], community:['자원봉사단'],
       funder:['사랑의열매'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['혁신성','성과지향']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['혁신성','성과지향'],
+      projYear:['2026년'], projDuration:['6개월'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
     },
     freetext:'또래관계에서 위축되거나 갈등을 자주 겪는 초등 3~4학년 대상. 사회성 척도(SSRS) 사전사후 측정. 학교 상담교사와 연계해 학교 부적응 신호 조기 발견. 부모교육 4회 병행.'
   },
@@ -1485,7 +1611,8 @@ const PRESETS = [
       tool:['표준화 척도','관찰 기록'], indicator:['산출지표(output)','성과지표(outcome)'],
       partner:['병원·보건소','주민센터·구청'], family:['정보 제공'], community:['자원봉사단','주민조직'],
       funder:['지자체·구청'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성'],
+      projYear:['2026년'], projDuration:['8개월'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
     },
     freetext:'MMSE-K 24점 이하 경도인지장애 의심 어르신 대상. 치매안심센터와 연계해 정밀검사 의뢰체계 구축. 또래 동반(짝꿍) 방식으로 출석률 90% 목표. 작년 사업 한계: 단순 강의식 → 올해는 활동·체험 중심으로 전환.'
   },
@@ -1505,7 +1632,8 @@ const PRESETS = [
       tool:['자체개발 설문','심층면접','관찰 기록'], indicator:['성과지표(outcome)','과정지표(process)'],
       partner:['학교','대학'], family:['필수 참여'], community:['자원봉사단','주민조직'],
       funder:['매칭펀드'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['연계성','지속가능성']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['연계성','지속가능성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
     },
     freetext:'한국어 능력에 따른 학습 격차가 큰 다문화 가정 자녀 대상. 대학생 1:1 멘토링 + 부모-자녀 이중언어 활동 병행. 다문화가족지원센터와 연계해 부모 한국어교육 동시 지원.'
   },
@@ -1526,7 +1654,8 @@ const PRESETS = [
       tool:['표준화 척도','관찰 기록','목표달성척도(GAS)','포트폴리오'], indicator:['성과지표(outcome)','영향지표(impact)'],
       partner:['병원·보건소','주민센터·구청','기업'], family:['필수 참여'], community:['지역 상점·기업'],
       funder:['복지재단'], budgetSize:['3천~5천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','평가·연구비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['혁신성','확산가능성','지속가능성']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['혁신성','확산가능성','지속가능성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['3개월']
     },
     freetext:'경계선 지능~경도 발달장애 청년 대상 자립생활 시범사업. 일상생활기술→지역사회 활용→직업적응 3단계 구성. 지역 카페·편의점과 연계한 직무체험 6주 포함. 적응행동척도(K-SIB-R) 활용 진전도 측정.'
   },
@@ -1546,7 +1675,8 @@ const PRESETS = [
       tool:['표준화 척도','심층면접','만족도 조사'], indicator:['성과지표(outcome)','과정지표(process)'],
       partner:['주민센터·구청','병원·보건소'], family:['선택 참여'], community:['자원봉사단','후원자·후원금'],
       funder:['사랑의열매'], budgetSize:['500~1천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','클라이언트 중심']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','클라이언트 중심'],
+      projYear:['2026년'], projDuration:['6개월'], projStart:['2분기(4~6월)'], projPrepTime:['1개월']
     },
     freetext:'한부모 가장의 양육 스트레스·사회적 고립·정서적 소진 회복 목표. 자조모임 리더 양성과정 포함해 사업 종료 후에도 자생적 운영 가능하도록 설계. 자녀 돌봄(현장 보육)과 동시 진행.'
   },
@@ -1567,7 +1697,8 @@ const PRESETS = [
       tool:['표준화 척도','심층면접','관찰 기록','목표달성척도(GAS)'], indicator:['성과지표(outcome)','영향지표(impact)'],
       partner:['병원·보건소','NGO·시민단체','대학'], family:['정보 제공'], community:['온라인 커뮤니티','자원봉사단'],
       funder:['복지부 공모'], budgetSize:['3천~5천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','평가·연구비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['시급성','혁신성','연계성']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['시급성','혁신성','연계성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['3개월']
     },
     freetext:'사회진출에 어려움을 겪는 19~34세 은둔·고립청년 대상. 진입 장벽을 낮추기 위해 온라인 1:1 상담→소그룹→지역사회 활동 단계적 접근. 정신건강복지센터·청년재단과 연계 의뢰체계 구축. 또래 회복 동료지원가 양성 포함.'
   },
@@ -1587,7 +1718,8 @@ const PRESETS = [
       tool:['자체개발 설문','심층면접','만족도 조사'], indicator:['과정지표(process)','성과지표(outcome)'],
       partner:['주민센터·구청','타 복지기관'], family:['미적용'], community:['주민조직','마을공동체','자원봉사단'],
       funder:['지자체·구청'], budgetSize:['500~1천만원'], budgetItem:['사업비(교재·재료)','활동비(교통·식비)','관리운영비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','확산가능성']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','확산가능성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['1개월']
     },
     freetext:'관 주도가 아닌 주민 주도 자조모임으로의 전환 목표. 모임 리더 8명 양성, 5개 자조모임 자생적 운영 정착. 주민기획단 구성→욕구조사→사업기획→실행 사이클 구축.'
   },
@@ -1607,7 +1739,8 @@ const PRESETS = [
       tool:['자체개발 설문','만족도 조사','포트폴리오'], indicator:['산출지표(output)','성과지표(outcome)'],
       partner:['학교','기업','대학'], family:['정보 제공'], community:['지역 상점·기업'],
       funder:['기업 CSR'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','홍보비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['혁신성','성과지향']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['혁신성','성과지향'],
+      projYear:['2026년'], projDuration:['6개월'], projStart:['2분기(4~6월)'], projPrepTime:['2개월']
     },
     freetext:'기업 직원이 멘토로 참여하는 1:1 진로 멘토링. 직무체험·기업 탐방 4회 포함. 후원기업의 산업분야와 연관된 진로교육 콘텐츠 개발.'
   },
@@ -1627,7 +1760,8 @@ const PRESETS = [
       tool:['자체개발 설문','만족도 조사','심층면접'], indicator:['산출지표(output)','과정지표(process)'],
       partner:['주민센터·구청','타 복지기관'], family:['미적용'], community:['주민조직','자원봉사단'],
       funder:['지자체·구청'], budgetSize:['1천~3천만원'], budgetItem:['사업비(교재·재료)','활동비(교통·식비)','홍보비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['1개월']
     },
     freetext:'어르신을 서비스 수혜자가 아닌 지역사회 자원으로 재인식. 봉사단 자체 회칙 제정·연간계획 수립 등 자율운영 강화. 후배 어르신 멘토링·등하교 도우미·환경정화 등 다양한 봉사활동.'
   },
@@ -1647,7 +1781,8 @@ const PRESETS = [
       tool:['표준화 척도','관찰 기록','심층면접'], indicator:['성과지표(outcome)','영향지표(impact)'],
       partner:['주민센터·구청','병원·보건소'], family:['필수 참여'], community:['자원봉사단','후원자·후원금'],
       funder:['사랑의열매'], budgetSize:['1천~3천만원'], budgetItem:['사업비(교재·재료)','활동비(교통·식비)','인건비'],
-      docType:['공모용 풀버전'], tone:['친근·따뜻'], emphasis:['클라이언트 중심','연계성']
+      docType:['공모용 풀버전'], tone:['친근·따뜻'], emphasis:['클라이언트 중심','연계성'],
+      projYear:['2026년'], projDuration:['3개월'], projStart:['3분기(7~9월)'], projPrepTime:['1개월']
     },
     freetext:'갈등·소통단절을 겪는 위기가정 8가족 대상. 사전 가족 사정→2박3일 통합캠프→사후 4회 가족상담 패키지. 가족 응집력·가족 적응력 척도(FACES) 활용.'
   },
@@ -1667,7 +1802,8 @@ const PRESETS = [
       tool:['표준화 척도','관찰 기록','목표달성척도(GAS)','포트폴리오'], indicator:['산출지표(output)','성과지표(outcome)','영향지표(impact)'],
       partner:['기업','학교','주민센터·구청'], family:['필수 참여'], community:['지역 상점·기업'],
       funder:['복지재단'], budgetSize:['3천~5천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','평가·연구비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','확산가능성','성과지향']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','확산가능성','성과지향'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['3개월']
     },
     freetext:'특수학교 졸업 예정 또는 졸업 직후 발달장애 청년 대상. 직무 매칭→사전 적응훈련→현장 실습→고용 연계 단계. 지역 5개 사업체와 협약. 직무지도원 3개월 동행 지원.'
   },
@@ -1687,7 +1823,8 @@ const PRESETS = [
       tool:['표준화 척도','관찰 기록','자체개발 설문'], indicator:['산출지표(output)','성과지표(outcome)'],
       partner:['학교','대학','주민센터·구청'], family:['선택 참여'], community:['자원봉사단','후원자·후원금'],
       funder:['매칭펀드'], budgetSize:['1천~3천만원'], budgetItem:['인건비','사업비(교재·재료)','활동비(교통·식비)','관리운영비'],
-      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성','클라이언트 중심']
+      docType:['공모용 풀버전'], tone:['공식·전문'], emphasis:['지속가능성','연계성','클라이언트 중심'],
+      projYear:['2026년'], projDuration:['12개월(연중)'], projStart:['1분기(1~3월)'], projPrepTime:['2개월']
     },
     freetext:'학습 결손과 정서적 결핍이 동반된 아동 대상 통합 지원. 학습(국어·수학)+정서(미술치료·놀이)+사회성(또래활동) 3축. 학교 담임·드림스타트와 연계해 위기 신호 조기발견.'
   },
@@ -1882,15 +2019,18 @@ function renderSections(){
     }
 
     el.innerHTML = `
-      <div class="sec-head">
+      <div class="sec-head" onclick="toggleSection('${sec.id}')">
         <div class="sec-num">${sec.num}</div>
         <div class="sec-title">${sec.title}</div>
         ${badges}
         <div class="sec-done-dot" id="done-${sec.id}" title="미선택"></div>
+        <span class="sec-chevron open" id="chevron-${sec.id}">▼</span>
       </div>
-      <div class="sec-sub">${sec.sub}</div>
-      ${groupsHtml}
-      ${freetextHtml}
+      <div class="sec-body" id="secbody-${sec.id}">
+        <div class="sec-sub">${sec.sub}</div>
+        ${groupsHtml}
+        ${freetextHtml}
+      </div>
     `;
     root.appendChild(el);
   });
@@ -1936,6 +2076,7 @@ function updateCount(){
   if (state.freetext.trim()) total += 1;
   document.getElementById('selCount').textContent = total;
   updateSectionStatus();
+  saveAutoState();
 }
 
 function updateSectionStatus(){
@@ -2039,7 +2180,6 @@ function applyPreset(id){
 function generatePrompt(){
   const sel = state.selections;
   const get = (gid) => (sel[gid] && sel[gid].length) ? sel[gid].join(' · ') : '(미선택)';
-  const has = (gid) => sel[gid] && sel[gid].length > 0;
 
   // count selections
   let total = 0;
@@ -2194,6 +2334,7 @@ ${funderSpecific}
   document.getElementById('promptOut').textContent = prompt;
   document.getElementById('promptModal').classList.add('show');
   window._lastPrompt = prompt;
+  savePromptHistory(prompt);
 }
 
 function copyPrompt(closeAfter = false){
@@ -2441,26 +2582,28 @@ function doLoad(i){
 }
 
 function doDelete(i){
-  if (!confirm('슬롯 ' + (i+1) + '을(를) 삭제할까요?')) return;
-  const slots = loadSlots();
-  slots[i] = null;
-  saveSlots(slots);
-  renderSlots();
-  showToast('🗑 슬롯 삭제됨');
+  openConfirm('슬롯 삭제', '슬롯 ' + (i+1) + '을(를) 삭제할까요?', () => {
+    const slots = loadSlots();
+    slots[i] = null;
+    saveSlots(slots);
+    renderSlots();
+    showToast('🗑 슬롯 삭제됨');
+  });
 }
 
 /* ═══════════════════════════════════════════
    초기화
    ═══════════════════════════════════════════ */
 function confirmReset(){
-  if (!confirm('모든 선택을 초기화할까요?')) return;
-  state.selections = {};
-  state.freetext = '';
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-  const ta = document.getElementById('freetext');
-  if (ta) ta.value = '';
-  updateCount();
-  showToast('🔄 초기화 완료');
+  openConfirm('초기화', '모든 선택을 초기화할까요?', () => {
+    state.selections = {};
+    state.freetext = '';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    const ta = document.getElementById('freetext');
+    if (ta) ta.value = '';
+    updateCount();
+    showToast('🔄 초기화 완료');
+  });
 }
 
 /* ═══════════════════════════════════════════
@@ -2476,6 +2619,160 @@ function showToast(msg){
 }
 
 /* ═══════════════════════════════════════════
+   아코디언
+   ═══════════════════════════════════════════ */
+function toggleSection(id){
+  const body = document.getElementById('secbody-' + id);
+  const chevron = document.getElementById('chevron-' + id);
+  if (!body) return;
+  const isCollapsed = body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', !isCollapsed);
+  if (chevron) chevron.classList.toggle('open', isCollapsed);
+}
+
+/* ═══════════════════════════════════════════
+   인앱 확인 모달 (confirm() 대체)
+   ═══════════════════════════════════════════ */
+let _confirmCallback = null;
+function openConfirm(title, msg, onConfirm){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  _confirmCallback = onConfirm;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm(){
+  _confirmCallback = null;
+  document.getElementById('confirmOverlay').classList.remove('open');
+}
+function doConfirm(){
+  closeConfirm();
+  if (_confirmCallback) { const fn = _confirmCallback; _confirmCallback = null; fn(); }
+}
+
+/* ═══════════════════════════════════════════
+   자동저장
+   ═══════════════════════════════════════════ */
+const AUTOSAVE_KEY = 'sw_autosave_v2';
+function saveAutoState(){
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+      selections: state.selections,
+      freetext: state.freetext,
+      savedAt: Date.now()
+    }));
+  } catch(e){}
+}
+function restoreAutoState(){
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || !saved.selections) return;
+    const hasData = Object.values(saved.selections).some(v => v.length > 0) || (saved.freetext||'').trim();
+    if (!hasData) return;
+    state.selections = saved.selections;
+    state.freetext = saved.freetext || '';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    Object.entries(state.selections).forEach(([gid, labels]) => {
+      labels.forEach(label => {
+        const chip = document.querySelector(`.chip[data-group="${gid}"][data-label="${label}"]`);
+        if (chip) chip.classList.add('selected');
+      });
+    });
+    const ta = document.getElementById('freetext');
+    if (ta) ta.value = state.freetext;
+    const ago = Math.round((Date.now() - saved.savedAt) / 60000);
+    showToast('🔄 자동저장 복원 (' + (ago < 1 ? '방금' : ago + '분 전') + ')');
+  } catch(e){}
+}
+
+/* ═══════════════════════════════════════════
+   프롬프트 히스토리
+   ═══════════════════════════════════════════ */
+const HISTORY_KEY = 'sw_prompt_history_v1';
+function savePromptHistory(text){
+  try {
+    const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    hist.unshift({ text, savedAt: Date.now() });
+    if (hist.length > 3) hist.length = 3;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+  } catch(e){}
+}
+function showHistory(){
+  renderHistory();
+  document.getElementById('historyModal').classList.add('show');
+}
+function closeHistory(){
+  document.getElementById('historyModal').classList.remove('show');
+}
+function renderHistory(){
+  const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  const el = document.getElementById('historyContent');
+  if (!hist.length){
+    el.innerHTML = '<p style="color:var(--ink-mute);text-align:center;padding:20px">아직 생성된 프롬프트가 없습니다.</p>';
+    return;
+  }
+  el.innerHTML = hist.map((h, i) => {
+    const d = new Date(h.savedAt);
+    const label = d.toLocaleString('ko-KR', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const preview = h.text.slice(0, 160).replace(/</g,'&lt;');
+    return `
+      <div class="history-item">
+        <div class="history-meta">
+          <span>${i+1}번째 · ${label}</span>
+          <button class="btn" style="padding:4px 10px;font-size:9pt" onclick="copyHistoryItem(${i})">📋 복사</button>
+        </div>
+        <div class="history-preview">${preview}</div>
+      </div>`;
+  }).join('');
+}
+function copyHistoryItem(i){
+  const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  if (!hist[i]) return;
+  navigator.clipboard.writeText(hist[i].text).then(() => showToast('📋 복사 완료'));
+}
+
+/* ═══════════════════════════════════════════
+   사업명 제안
+   ═══════════════════════════════════════════ */
+function suggestName(){
+  const sel = state.selections;
+  const get = (gid) => (sel[gid] && sel[gid].length) ? sel[gid][0] : null;
+  const target = get('target') || '대상자';
+  const purpose = get('purpose') || '변화';
+  const approach = get('approach') || '강점';
+  const format = get('format') || '프로그램';
+  const templates = [
+    `"${target} ${purpose} 지원사업"`,
+    `"${approach} 기반 ${target} ${format}"`,
+    `"${target}와 함께하는 ${purpose} 프로젝트"`,
+    `"${target} 맞춤형 ${approach} ${format}"`,
+  ];
+  const idx = Math.floor(Math.random() * templates.length);
+  showToast('💡 ' + templates[idx]);
+}
+
+/* ═══════════════════════════════════════════
+   이메일 공유
+   ═══════════════════════════════════════════ */
+function emailShare(){
+  const text = window._lastPrompt || '';
+  if (!text) { showToast('❗ 먼저 프롬프트를 생성해주세요'); return; }
+  const subject = encodeURIComponent('사회복지 사업계획서 AI 프롬프트');
+  const body = encodeURIComponent(text.slice(0, 2000) + (text.length > 2000 ? '\n...(전체 내용은 파일 다운로드로)' : ''));
+  window.open('mailto:?subject=' + subject + '&body=' + body);
+}
+
+/* ═══════════════════════════════════════════
+   서비스워커 등록
+   ═══════════════════════════════════════════ */
+function registerServiceWorker(){
+  if ('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+}
+
+/* ═══════════════════════════════════════════
    단축키
    ═══════════════════════════════════════════ */
 document.addEventListener('keydown', (e) => {
@@ -2487,6 +2784,8 @@ document.addEventListener('keydown', (e) => {
     closePromptModal();
     closeSaveModal();
     closeChecklist();
+    closeHistory();
+    closeConfirm();
   }
 });
 
@@ -2496,8 +2795,10 @@ document.addEventListener('keydown', (e) => {
 migrateOldSlots();
 renderSections();
 renderPresets();
+restoreAutoState();
 updateCount();
 loadFromHash();
+registerServiceWorker();
 </script>
 </body>
 </html>

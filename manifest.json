@@ -1,0 +1,19 @@
+{
+  "name": "사회복지 사업계획서 Studio",
+  "short_name": "사복 Studio",
+  "description": "사회복지 사업계획서 AI 프롬프트 빌더",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FBF6EB",
+  "theme_color": "#2C6E63",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
